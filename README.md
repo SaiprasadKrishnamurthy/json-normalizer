@@ -1,4 +1,4 @@
-**JSON Normaliser**
+**JSON Normalizer**
 
 The purpose of this utility is to cleanse the JSON that has a lot of duplicated fields and values in 
 multiple sections and normalize them into a single field without writing any code.

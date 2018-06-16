@@ -153,7 +153,7 @@ public final class DocumentNormalizer {
                 .noneMatch(fs -> fs.getPrimaryField().equalsIgnoreCase(canonicalizedJsonKey));
     }
 
-    private static void logDebug(final String message, Object... placeHolderValues) {
+    private static void logDebug(final String message, final Object... placeHolderValues) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(message, placeHolderValues);
         }

@@ -1,0 +1,28 @@
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "phoneNumber",
+      "secondaryFields": [
+        "orders.phone",
+        "travelTickets.contactPhone"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "phoneNumbers",
+      "secondaryFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ],
+      "rejectValuesMatchingRegex": "\\D",
+      "valuesDelimiter": ",",
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}

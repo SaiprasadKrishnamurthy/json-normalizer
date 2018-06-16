@@ -301,4 +301,144 @@ field. The array values are automatically handled.
 }
 ```
 
+***Example 6 (A more complex example)***
+
+****Input JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumber": ["999"],
+  "city": "New York",
+  "orders": [
+    {
+      "orderId": "1",
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ],
+      "phone": "111"
+    },
+    {
+      "orderId": "2",
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ],
+      "phone": "112"
+    }
+  ],
+  "travelTickets": [
+    {
+      "ticketId": "1",
+      "contactPhone": "111"
+    }
+  ]
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "phoneNumber",
+      "secondaryFields": [
+        "orders.phone",
+        "travelTickets.contactPhone"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "phoneNumbers",
+      "secondaryFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ],
+      "rejectValuesMatchingRegex": "\\D",
+      "valuesDelimiter": ",",
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}
+```
+We have phone numbers at various depths in the input JSON. The settings would simply collect all the phone numbers
+from various fields, dedupe them into a single "phoneNumber" field. The output JSON would look like below. 
+ 
+****Output JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 31,
+  "phoneNumber": [
+    "111",
+    "112",
+    "999"
+  ],
+  "city": "New York",
+  "orders": [
+    {
+      "orderId": "1",
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "orderId": "2",
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "travelTickets": [
+    {
+      "ticketId": "1"
+    }
+  ]
+}
+```
+
 

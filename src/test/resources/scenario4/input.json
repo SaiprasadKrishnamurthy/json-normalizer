@@ -1,0 +1,10 @@
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumbers": ["111", "234", "111"],
+  "city": "New York"
+}

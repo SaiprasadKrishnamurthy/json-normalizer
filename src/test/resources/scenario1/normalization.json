@@ -1,0 +1,12 @@
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "fullName",
+      "secondaryFields": [
+        "firstName",
+        "lastName"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "names",
+      "secondaryFields": [
+        "firstName",
+        "lastName"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "coordinates",
+      "secondaryFields": [
+        "phoneNumbers",
+        "city"
+      ],
+      "valuesDelimiter": ","
+    }
+  ]
+}

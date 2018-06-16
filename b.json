@@ -1,0 +1,8 @@
+{
+  "service": "__service",
+  "serviceCode": "__serviceCode",
+  "totalPaxCountAnomalies": __totalPaxCountAnomalies,
+  "paxDocNoAnomalies": __paxDocNoAnomalies,
+  "paxIdentityInconsistencies": __paxIdentityInconsistencies,
+  "timestamp": __timestamp
+}

@@ -1,0 +1,18 @@
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "identity",
+      "secondaryFields": [
+        "firstName",
+        "lastName",
+        "age",
+        "city"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    }
+  ]
+}

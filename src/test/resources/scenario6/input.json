@@ -1,0 +1,26 @@
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumbers": [
+    "111",
+    "234",
+    "111",
+    "abc"
+  ],
+  "city": "New York",
+  "contacts": {
+    "homePhone": [
+      "111",
+      "000",
+      "234a"
+    ],
+    "officePhone": [
+      "111",
+      "100"
+    ]
+  }
+}

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -48,7 +49,7 @@ public final class DocumentNormalizer {
                         for (String secondaryField : fieldSettings.getSecondaryFields()) {
                             if (canonicalizedJsonKey.equals(secondaryField)) {
                                 Set<Object> secondaryValues = primaryKeySecondaryValuesMap.compute(primaryField, (k, v) -> (v == null) ? new TreeSet<>() : v);
-                                if (actualJsonValue != null && (StringUtils.isBlank(fieldSettings.getRejectValuesMatchingRegex()) || !actualJsonValue.toString().matches(fieldSettings.getRejectValuesMatchingRegex()))) {
+                                if (actualJsonValue != null && (StringUtils.isBlank(fieldSettings.getRejectValuesMatchingRegex()) || !Pattern.compile(fieldSettings.getRejectValuesMatchingRegex()).matcher(actualJsonValue.toString()).find())) {
                                     secondaryValues.add(actualJsonValue.toString());
                                 }
                                 // Remove the secondary value as per the settings.
@@ -68,7 +69,7 @@ public final class DocumentNormalizer {
                         }
                         if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> f.equals(canonicalizedJsonKey))) {
                             unwantedFieldPaths.add(actualJsonKey);
-                        } else if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))){
+                        } else if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))) {
                             unwantedFieldPaths.add(actualJsonKey);
                         }
                     });
@@ -82,7 +83,7 @@ public final class DocumentNormalizer {
             if (primaryKeySecondaryValuesMap.containsKey(canonicalizedJsonKey)) {
                 // Look up the original FieldSynonymSetting
                 FieldSettings fieldSettings = documentNormalizationSettings.getFieldSettings().stream().filter(f -> f.getPrimaryField().equalsIgnoreCase(canonicalizedJsonKey)).findFirst().get();
-                if (actualJsonValue != null && (StringUtils.isBlank(fieldSettings.getRejectValuesMatchingRegex()) || !actualJsonValue.toString().matches(fieldSettings.getRejectValuesMatchingRegex()))) {
+                if (actualJsonValue != null && (StringUtils.isBlank(fieldSettings.getRejectValuesMatchingRegex()) || !Pattern.compile(fieldSettings.getRejectValuesMatchingRegex()).matcher(actualJsonValue.toString()).find())) {
                     primaryKeySecondaryValuesMap.get(canonicalizedJsonKey)
                             .addAll(Arrays.asList(actualJsonValue.toString().split(fieldSettings.getValuesDelimiter())));
                 }
@@ -129,14 +130,14 @@ public final class DocumentNormalizer {
         unwantedFieldPaths.forEach(path -> {
             try {
                 json.delete(path);
-            }catch (PathNotFoundException exception) {
+            } catch (PathNotFoundException exception) {
                 logDebug("A Tree Specified as Unwanted Field. Therefore attempting to delete recursively: {} ", path);
                 List<String> tokens = Arrays.asList(path.split("\\."));
                 Collections.reverse(tokens);
                 tokens.forEach(token -> {
                     String replace = path.replace(token, "");
-                    if(replace.endsWith(".")) {
-                        replace = replace.substring(0, replace.length()-1);
+                    if (replace.endsWith(".")) {
+                        replace = replace.substring(0, replace.length() - 1);
                     }
                     json.delete(replace);
                 });

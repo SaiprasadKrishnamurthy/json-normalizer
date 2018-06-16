@@ -143,7 +143,7 @@ field. The array values are automatically handled.
 }
 ```
 
-***Example 4 (using arrays)***
+***Example 4 (using multi-level nested document)***
 
 ****Input JSON****
 ```
@@ -204,6 +204,87 @@ field. The array values are automatically handled.
 }
 ```
 
+****Output JSON****
+```
+{
+  "names": "John,Smith",
+  "coordinates": null,
+  "age": 31,
+  "phoneNumbers": [
+    "000",
+    "100",
+    "111",
+    "234"
+  ],
+  "city": "New York"
+}
+```
+
+***Example 5 (filtering a specific value using regex)***
+
+****Input JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumbers": [
+    "111",
+    "234",
+    "111",
+    "abc"
+  ],
+  "city": "New York",
+  "contacts": {
+    "homePhone": [
+      "111",
+      "000",
+      "234a"
+    ],
+    "officePhone": [
+      "111",
+      "100"
+    ]
+  }
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "names",
+      "secondaryFields": [
+        "firstName",
+        "lastName"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "phoneNumbers",
+      "secondaryFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ],
+      "rejectValuesMatchingRegex": "\\D",
+      "valuesDelimiter": ",",
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}
+```
+ I'm rejecting any non-numeric content in the phoneNumbers using the regex.
+ 
 ****Output JSON****
 ```
 {

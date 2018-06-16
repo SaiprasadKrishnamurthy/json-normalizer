@@ -3,16 +3,15 @@ package org.sai.es.util;
 import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class JsonPathUtil {
     public static void main(String[] args) throws Exception {
 
-        DualHashBidiMap<String, Set<Object>> primaryKeySecondaryValuesMap = new DualHashBidiMap<>();
+        String s = "123";
 
-        Set<Object> s = primaryKeySecondaryValuesMap.compute("a", (k, v) -> (v == null) ? new LinkedHashSet<>() : v);
-        s.add("1");
 
-        System.out.println(primaryKeySecondaryValuesMap.getKey(s));
+        System.out.println();
 
 //        String s = FileUtils.readFileToString(new File("a.json"));
 //        List<String> value = JsonPath.read(s, "$._shards.total");

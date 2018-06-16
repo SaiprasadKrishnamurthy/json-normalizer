@@ -40,7 +40,7 @@ The best way to explain this is via a few examples:
 As you see above, my intent is to combine the firstName and lastName fields, dedupe them and munge them into the fullName
 field.
 
-The output looks like this:
+****Output JSON****
 ```
 {
   "fullName": "John Smith",
@@ -49,5 +49,98 @@ The output looks like this:
 }
 ```
 
+***Example 2***
+
+****Input JSON****
+```
+{
+  "identity": null,
+  "firstName": "John",
+  "lastName": "John",
+  "fullName": "John John",
+  "age": 31,
+  "city": "New York"
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "identity",
+      "secondaryFields": [
+        "firstName",
+        "lastName",
+        "age",
+        "city"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    }
+  ]
+}
+```
+
+As you see above, my intent is to combine the firstName, lastName, age, city fields, dedupe them and munge them into the identity
+field. I also declared that I do not want fullName field as they are already taken care of.
+
+****Output JSON****
+```
+{
+  "identity": "31,John,New York"
+}
+```
+
+***Example 3 (using arrays)***
+
+****Input JSON****
+```
+{
+  "identity": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumbers": ["111", "234", "111"],
+  "city": "New York"
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "identity",
+      "secondaryFields": [
+        "firstName",
+        "lastName",
+        "age",
+        "city",
+        "phoneNumbers"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    }
+  ]
+}
+```
+
+As you see above, my intent is to combine the firstName, lastName, age, city, phone fields, dedupe them and munge them into the identity
+field. The array values are automatically handled.
+
+****Output JSON****
+```
+{
+  "identity": "111,234,31,John,New York,Smith"
+}
+```
 
 

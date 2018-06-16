@@ -143,4 +143,81 @@ field. The array values are automatically handled.
 }
 ```
 
+***Example 4 (using arrays)***
+
+****Input JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "phoneNumbers": [
+    "111",
+    "234",
+    "111"
+  ],
+  "city": "New York",
+  "contacts": {
+    "homePhone": [
+      "111",
+      "000"
+    ],
+    "officePhone": [
+      "111",
+      "100"
+    ]
+  }
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "names",
+      "secondaryFields": [
+        "firstName",
+        "lastName"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "phoneNumbers",
+      "secondaryFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ],
+      "valuesDelimiter": ",",
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}
+```
+
+****Output JSON****
+```
+{
+  "names": "John,Smith",
+  "coordinates": null,
+  "age": 31,
+  "phoneNumbers": [
+    "000",
+    "100",
+    "111",
+    "234"
+  ],
+  "city": "New York"
+}
+```
+
 

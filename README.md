@@ -372,7 +372,7 @@ field. The array values are automatically handled.
       "valuesDelimiter": ","
     },
     {
-      "primaryField": "phoneNumbers",
+      "primaryField": "phoneNumber",
       "secondaryFields": [
         "contacts.homePhone",
         "contacts.officePhone"

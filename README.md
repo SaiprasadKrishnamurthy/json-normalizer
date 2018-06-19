@@ -441,4 +441,75 @@ from various fields, dedupe them into a single "phoneNumber" field. The output J
 }
 ```
 
+***Example 7 (Dynamic fields or Virtual Fields)***
+
+****Input JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "city": "New York",
+  "contacts": {
+    "homePhone": [
+      "111",
+      "000",
+      "234a"
+    ],
+    "officePhone": [
+      "111",
+      "100"
+    ]
+  }
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "primaryField": "names",
+      "secondaryFields": [
+        "firstName",
+        "lastName"
+      ],
+      "unwantedFields": [
+        "fullName"
+      ],
+      "valuesDelimiter": ","
+    },
+    {
+      "primaryField": "_phoneNumbers",
+      "dynamicField": true,
+      "secondaryFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ],
+      "rejectValuesMatchingRegex": "\\D",
+      "valuesDelimiter": " ",
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}
+```
+The "_phoneNumbers" field is a dynamic field and not present in the original input document. It's dynamically added.
+
+****Output JSON****
+```
+{
+  "names": "John,Smith",
+  "coordinates": null,
+  "age": 31,
+  "city": "New York",
+  "_phoneNumbers": "000 100 111"
+}
+```
+
 

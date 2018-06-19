@@ -3,10 +3,10 @@
   "coordinates": null,
   "age": 31,
   "phoneNumbers": [
-    "000",
-    "100",
     "111",
-    "234"
+    "234",
+    "000",
+    "100"
   ],
   "city": "New York"
 }

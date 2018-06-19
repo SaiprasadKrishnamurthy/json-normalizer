@@ -5,9 +5,9 @@
   "lastName": "Smith",
   "age": 31,
   "phoneNumber": [
+    "999",
     "111",
-    "112",
-    "999"
+    "112"
   ],
   "city": "New York",
   "orders": [

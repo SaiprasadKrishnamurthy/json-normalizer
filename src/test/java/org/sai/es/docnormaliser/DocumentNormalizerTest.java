@@ -87,4 +87,15 @@ public class DocumentNormalizerTest {
         String actualJson = DocumentNormalizer.normalize(documentNormalizationSettings, inputJson);
         JSONAssert.assertEquals(expectedJson, actualJson, true);
     }
+
+    @Test
+    public void normalize_scenario8() throws Exception {
+        String scenarioPrefix = "scenario8";
+        String settingsJson = IOUtils.toString(DocumentNormalizerTest.class.getClassLoader().getResourceAsStream(scenarioPrefix + "/" + "normalization.json"), Charset.defaultCharset());
+        String inputJson = IOUtils.toString(DocumentNormalizerTest.class.getClassLoader().getResourceAsStream(scenarioPrefix + "/" + "input.json"), Charset.defaultCharset());
+        String expectedJson = IOUtils.toString(DocumentNormalizerTest.class.getClassLoader().getResourceAsStream(scenarioPrefix + "/" + "expected.json"), Charset.defaultCharset());
+        DocumentNormalizationSettings documentNormalizationSettings = new ObjectMapper().readValue(settingsJson, DocumentNormalizationSettings.class);
+        String actualJson = DocumentNormalizer.normalize(documentNormalizationSettings, inputJson);
+        JSONAssert.assertEquals(expectedJson, actualJson, true);
+    }
 }

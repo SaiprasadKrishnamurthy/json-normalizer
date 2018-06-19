@@ -2,10 +2,10 @@
   "documentType": "events",
   "fieldSettings": [
     {
-      "primaryField": "phoneNumber",
+      "primaryField": "names",
       "secondaryFields": [
-        "orders.phone",
-        "travelTickets.contactPhone"
+        "firstName",
+        "lastName"
       ],
       "unwantedFields": [
         "fullName"
@@ -13,13 +13,14 @@
       "valuesDelimiter": ","
     },
     {
-      "primaryField": "phoneNumber",
+      "primaryField": "_phoneNumbers",
+      "dynamicField": true,
       "secondaryFields": [
         "contacts.homePhone",
         "contacts.officePhone"
       ],
       "rejectValuesMatchingRegex": "\\D",
-      "valuesDelimiter": ",",
+      "valuesDelimiter": " ",
       "unwantedFields": [
         "contacts"
       ]

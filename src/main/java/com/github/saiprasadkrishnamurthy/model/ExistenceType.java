@@ -1,4 +1,4 @@
-package org.sai.es.model;
+package com.github.saiprasadkrishnamurthy.model;
 
 public enum ExistenceType {
     FieldOnlyInPrimary,

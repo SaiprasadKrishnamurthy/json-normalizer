@@ -1,4 +1,4 @@
-package org.sai.es.model;
+package com.github.saiprasadkrishnamurthy.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
-import static org.sai.es.model.ExistenceType.FieldOnlyInPrimary;
+import static com.github.saiprasadkrishnamurthy.model.ExistenceType.FieldOnlyInPrimary;
 
 @Data
 @EqualsAndHashCode(of = {"primaryField"})

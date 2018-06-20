@@ -1,13 +1,13 @@
-package org.sai.es.docnormaliser;
+package com.github.saiprasadkrishnamurthy.docnormaliser;
 
+import com.github.saiprasadkrishnamurthy.model.FieldSettings;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.commons.lang3.StringUtils;
-import org.sai.es.model.DocumentNormalizationSettings;
-import org.sai.es.model.ExistenceType;
-import org.sai.es.model.FieldSettings;
+import com.github.saiprasadkrishnamurthy.model.DocumentNormalizationSettings;
+import com.github.saiprasadkrishnamurthy.model.ExistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

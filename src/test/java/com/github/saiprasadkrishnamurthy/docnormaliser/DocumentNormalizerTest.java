@@ -1,10 +1,10 @@
-package org.sai.es.docnormaliser;
+package com.github.saiprasadkrishnamurthy.docnormaliser;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.sai.es.model.DocumentNormalizationSettings;
+import com.github.saiprasadkrishnamurthy.model.DocumentNormalizationSettings;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.nio.charset.Charset;

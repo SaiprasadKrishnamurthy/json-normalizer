@@ -6,6 +6,18 @@ multiple sections and normalize them into a single field without writing any cod
 The main motivation behind this utility is to make the JSON nice and compact to be indexed efficiently into
 Elasticsearch without having to make your index consume too much of space (with duplicated fields/values).
 
+** To use this
+```
+<dependency>
+    <groupId>com.github.saiprasadkrishnamurthy</groupId>
+    <artifactId>json-normalizer</artifactId>
+    <version>1.0</version>
+</dependency>
+
+DocumentNormalizer.normalize(final DocumentNormalizationSettings documentNormalizationSettings, final String originalJson)
+is the method you'd have to call.
+
+```
 The best way to explain this is via a few examples:
 
 ***Example 1***

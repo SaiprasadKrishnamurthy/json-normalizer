@@ -6,7 +6,7 @@ multiple sections and normalize them into a single field without writing any cod
 The main motivation behind this utility is to make the JSON nice and compact to be indexed efficiently into
 Elasticsearch without having to make your index consume too much of space (with duplicated fields/values).
 
-**To use this
+**To use this**
 ```
 <dependency>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>

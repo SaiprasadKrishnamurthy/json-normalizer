@@ -1,0 +1,27 @@
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "unwantedFields": [
+        "fullName"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "names",
+        "coordinates"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}

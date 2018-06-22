@@ -11,7 +11,7 @@ Elasticsearch without having to make your index consume too much of space (with 
 <dependency>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>json-normalizer</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 </dependency>
 
 ```
@@ -524,6 +524,75 @@ The "_phoneNumbers" field is a dynamic field and not present in the original inp
   "age": 31,
   "city": "New York",
   "_phoneNumbers": "000 100 111"
+}
+```
+
+***Example 8 (Removal only)***
+
+****Input JSON****
+```
+{
+  "names": null,
+  "coordinates": null,
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith",
+  "age": 31,
+  "city": "New York",
+  "contacts": {
+    "homePhone": [
+      "111",
+      "000",
+      "234a"
+    ],
+    "officePhone": [
+      "111",
+      "100"
+    ]
+  }
+}
+```
+
+****Settings JSON****
+```
+{
+  "documentType": "events",
+  "fieldSettings": [
+    {
+      "unwantedFields": [
+        "fullName"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "contacts.homePhone",
+        "contacts.officePhone"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "names",
+        "coordinates"
+      ]
+    },
+    {
+      "unwantedFields": [
+        "contacts"
+      ]
+    }
+  ]
+}
+}
+```
+The "_fullName", "names", "coordinates", "contacts" fields are simply removed.
+
+****Output JSON****
+```
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 31,
+  "city": "New York"
 }
 ```
 

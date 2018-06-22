@@ -1,16 +1,20 @@
 package com.github.saiprasadkrishnamurthy.docnormaliser;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.saiprasadkrishnamurthy.model.DocumentNormalizationSettings;
+import com.github.saiprasadkrishnamurthy.model.ExistenceType;
 import com.github.saiprasadkrishnamurthy.model.FieldSettings;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 import org.apache.commons.lang3.StringUtils;
-import com.github.saiprasadkrishnamurthy.model.DocumentNormalizationSettings;
-import com.github.saiprasadkrishnamurthy.model.ExistenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -39,7 +43,7 @@ public final class DocumentNormalizer {
         logDebug("Injecting the dynamic fields wherever applicable");
 
         long countOfDynamicFields = documentNormalizationSettings.getFieldSettings().stream()
-                .filter(d -> d.isDynamicField())
+                .filter(FieldSettings::isDynamicField)
                 .peek(d -> {
                     if (d.getPrimaryField().contains(".")) {
                         throw new IllegalArgumentException("Dynamic fields are always only supported at the root level. Therefore it should not contain any accessor characters like dot '.'");
@@ -70,7 +74,7 @@ public final class DocumentNormalizer {
             String canonicalizedJsonKey = actualJsonKey.replaceAll(pattern, "");
             documentNormalizationSettings.getFieldSettings()
                     .forEach(fieldSettings -> {
-                        if (fieldSettings.combinedFields().contains(canonicalizedJsonKey)) {
+                        if (!fieldSettings.isRemoveOnly() && fieldSettings.combinedFields().contains(canonicalizedJsonKey)) {
                             String primaryField = fieldSettings.getPrimaryField();
                             if (canonicalizedJsonKey.equals(primaryField)) {
                                 if (actualJsonValue != null && (StringUtils.isBlank(fieldSettings.getRejectValuesMatchingRegex()) || !Pattern.compile(fieldSettings.getRejectValuesMatchingRegex()).matcher(actualJsonValue.toString()).find())) {
@@ -99,12 +103,36 @@ public final class DocumentNormalizer {
                                         }
                                     }
                                 }
-                                if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> f.equals(canonicalizedJsonKey))) {
-                                    unwantedFieldPaths.add(actualJsonKey);
-                                } else if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))) {
-                                    unwantedFieldPaths.add(actualJsonKey);
-                                }
                             }
+                        }
+                        if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> f.equals(canonicalizedJsonKey))) {
+                            unwantedFieldPaths.add(actualJsonKey);
+                        } else if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))) {
+                            unwantedFieldPaths.add(actualJsonKey);
+                        }
+
+                        List<String> collectedTreePaths = new ArrayList<>();
+                        // collect the tree to be deleted.
+                        fieldSettings.getUnwantedFields().stream()
+                                .forEach(uf -> {
+                                    if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))) {
+                                        System.out.println(uf + " --> " + canonicalizedJsonKey + " ---> " + actualJsonKey);
+                                        List<String> tokens = Arrays.asList(actualJsonKey.split("\\."));
+                                        int i = 0;
+                                        String current = tokens.get(i);
+                                        collectedTreePaths.add(current);
+                                        while (i < tokens.size() && !current.replaceAll(pattern, "").equals(uf)) {
+                                            collectedTreePaths.add(current);
+                                            i++;
+                                            current = tokens.get(i);
+                                        }
+                                    }
+                                });
+
+                        if (!collectedTreePaths.isEmpty()) {
+                            unwantedFieldPaths.add(collectedTreePaths.stream()
+                                    .filter(p -> p.trim().length() > 0)
+                                    .collect(joining(".")));
                         }
                     });
 
@@ -151,22 +179,29 @@ public final class DocumentNormalizer {
         });
         logDebug("Unwanted fields to be removed: {} ", unwantedFieldPaths);
 
-        unwantedFieldPaths.forEach(path -> {
-            try {
-                json.delete(path);
-            } catch (PathNotFoundException exception) {
-                logDebug("A Tree Specified as Unwanted Field. Therefore attempting to delete recursively: {} ", path);
-                List<String> tokens = Arrays.asList(path.split("\\."));
-                Collections.reverse(tokens);
-                tokens.forEach(token -> {
-                    String replace = path.replace(token, "");
-                    if (replace.endsWith(".")) {
-                        replace = replace.substring(0, replace.length() - 1);
+        unwantedFieldPaths
+                .stream()
+                .filter(p -> p.trim().length() > 0)
+                .forEach(path -> {
+                    try {
+                        if (path.endsWith("]")) {
+                            json.delete(path.replaceAll(pattern, ""));
+                        } else {
+                            json.delete(path);
+                        }
+                    } catch (PathNotFoundException exception) {
+                        logDebug("A Tree Specified as Unwanted Field. Therefore attempting to delete recursively: {} ", path);
+                        List<String> tokens = Arrays.asList(path.split("\\."));
+                        Collections.reverse(tokens);
+                        tokens.forEach(token -> {
+                            String replace = path.replace(token, "");
+                            if (replace.endsWith(".")) {
+                                replace = replace.substring(0, replace.length() - 1);
+                            }
+                            json.delete(replace);
+                        });
                     }
-                    json.delete(replace);
                 });
-            }
-        });
 
         logDebug("Original Doc Length: {} ", originalJson.length());
         logDebug("Normalized Doc Length: {} ", () -> json.jsonString().length());
@@ -174,6 +209,18 @@ public final class DocumentNormalizer {
         logDebug("Output JSON: {} ", json::jsonString);
 
         return json.jsonString();
+    }
+
+    public static Set<String> normalizedFieldsFor(final String fieldName, final InputStream settingsFile) {
+        try {
+            DocumentNormalizationSettings documentNormalizationSettings = new ObjectMapper().readValue(settingsFile, DocumentNormalizationSettings.class);
+            return documentNormalizationSettings.getFieldSettings().stream()
+                    .filter(fs -> fs.getSecondaryFields().contains(fieldName))
+                    .flatMap(fs -> Stream.of(fieldName, fs.getPrimaryField()))
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 

@@ -113,10 +113,9 @@ public final class DocumentNormalizer {
 
                         List<String> collectedTreePaths = new ArrayList<>();
                         // collect the tree to be deleted.
-                        fieldSettings.getUnwantedFields().stream()
+                        fieldSettings.getUnwantedFields()
                                 .forEach(uf -> {
                                     if (fieldSettings.getUnwantedFields().stream().anyMatch(f -> canonicalizedJsonKey.startsWith(f + ".") || canonicalizedJsonKey.contains("." + f + "."))) {
-                                        System.out.println(uf + " --> " + canonicalizedJsonKey + " ---> " + actualJsonKey);
                                         List<String> tokens = Arrays.asList(actualJsonKey.split("\\."));
                                         int i = 0;
                                         String current = tokens.get(i);

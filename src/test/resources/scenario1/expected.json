@@ -1,5 +1,12 @@
 {
-  "fullName": "John Smith",
+  "fullName": [
+    "Jim"
+  ],
   "age": 31,
-  "city": "New York"
+  "city": "New York",
+  "_fullName": [
+    "John",
+    "Smith",
+    "Jim"
+  ]
 }

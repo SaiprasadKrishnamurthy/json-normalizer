@@ -1,0 +1,16 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "Munging all names",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName"
+      ],
+      "targetField": "_fullName",
+      "targetFieldValueType": "ARRAY"
+    }
+  ]
+}

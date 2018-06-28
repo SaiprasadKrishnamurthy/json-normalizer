@@ -2,7 +2,6 @@ package com.github.saiprasadkrishnamurthy.model;
 
 import lombok.Data;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -32,8 +31,17 @@ public class DocumentData {
             } else if (value != null) {
                 values.addAll(Arrays.asList(value.toString().split("\\W+")));
             }
-            fieldData.add(new FieldData(canonicalPath, actualJsonPath, values, fieldsGroup.getTargetField(), false));
+            fieldData.add(new FieldData(canonicalPath, actualJsonPath, values, fieldsGroup.getTargetField(), false, fieldsGroup.getTargetFieldValueType()));
         }
+    }
+
+    public void markFieldToBeDeleted(final String actualJsonPath) {
+        String canonicalPath = actualJsonPath.replaceAll(ARRAY_ACCESSOR_PATTERN, "");
+        documentSettings.getFieldsGroup().forEach(fieldsGroup -> {
+            if (fieldsGroup.getFieldsToBeDeleted().contains(canonicalPath)) {
+                fieldData.add(new FieldData(canonicalPath, actualJsonPath, null, null, true, fieldsGroup.getTargetFieldValueType()));
+            }
+        });
     }
 
     public List<FieldData> fieldsToBeDeleted() {
@@ -53,22 +61,29 @@ public class DocumentData {
             String targetFieldName = fieldsGroup.getTargetField();
             List<FieldData> sourceFields = new ArrayList<>();
             List<String> sourceValues = fieldData.stream()
+                    .filter(fd -> fd.getTargetField() != null)
                     .filter(fd -> fd.getTargetField().equals(targetFieldName))
                     .flatMap(fd -> fd.getValues().stream())
                     .filter(Objects::nonNull)
                     .flatMap(s -> Stream.of(s.split("\\W+")))
                     .collect(toList());
 
-            fieldData.stream().filter(fd -> fd.getTargetField().equals(targetFieldName))
+            fieldData.stream()
+                    .filter(fd -> fd.getTargetField() != null)
+                    .filter(fd -> fd.getTargetField().equals(targetFieldName))
                     .forEach(sourceFields::add);
 
-            FieldData targetFieldData = new FieldData(targetFieldName, targetFieldName, sourceValues, null, false);
+            FieldData targetFieldData = new FieldData(targetFieldName, targetFieldName, sourceValues, null, false, fieldsGroup.getTargetFieldValueType());
             targetToSourceMapping.put(targetFieldData, sourceFields);
         });
     }
 
     public Set<FieldData> fieldsToBeAdded() {
         return targetToSourceMapping.keySet();
+    }
+
+    public List<FieldData> fieldsToBeHardDeleted() {
+        return fieldData.stream().filter(FieldData::isToBeDeleted).collect(toList());
     }
 
     public Optional<FieldsGroup> getFieldsGroup(final String jsonKey) {

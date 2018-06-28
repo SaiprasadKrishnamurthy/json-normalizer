@@ -18,4 +18,5 @@ public class FieldData {
     private List<String> values = new ArrayList<>();
     private String targetField;
     private boolean toBeDeleted;
+    private TargetFieldValueType targetFieldValueType;
 }

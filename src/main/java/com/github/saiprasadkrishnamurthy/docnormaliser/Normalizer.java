@@ -3,6 +3,7 @@ package com.github.saiprasadkrishnamurthy.docnormaliser;
 import com.github.saiprasadkrishnamurthy.model.DocumentData;
 import com.github.saiprasadkrishnamurthy.model.DocumentSettings;
 import com.github.saiprasadkrishnamurthy.model.FieldData;
+import com.github.saiprasadkrishnamurthy.model.TargetFieldValueType;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -38,6 +40,7 @@ public final class Normalizer {
         flattenedJson.forEach((jsonKey, jsonValue) -> {
             documentData.getFieldsGroup(jsonKey)
                     .ifPresent(fieldsGroup1 -> documentData.addSourceFieldData(jsonKey, jsonValue, fieldsGroup1));
+            documentData.markFieldToBeDeleted(jsonKey);
         });
 
         documentData.addTargetFieldData();
@@ -59,7 +62,20 @@ public final class Normalizer {
         // Add the target field.
         logDebug("Fields to be added: {}", () -> documentData.fieldsToBeAdded().stream().map(FieldData::getActualPath).collect(toList()));
         documentData.fieldsToBeAdded()
-                .forEach(fd -> json.put("$", fd.getActualPath(), new LinkedHashSet<>(fd.getValues())));
+                .forEach(fd -> {
+                    if (fd.getTargetFieldValueType() == TargetFieldValueType.ARRAY) {
+                        json.put("$", fd.getActualPath(), new LinkedHashSet<>(fd.getValues()));
+                    } else if (fd.getTargetFieldValueType() == TargetFieldValueType.COMMA_DELIMITED) {
+                        json.put("$", fd.getActualPath(), fd.getValues().stream().distinct().collect(joining(",")));
+                    } else if (fd.getTargetFieldValueType() == TargetFieldValueType.SPACE_DELIMITED) {
+                        json.put("$", fd.getActualPath(), fd.getValues().stream().distinct().collect(joining(" ")));
+                    }
+                });
+
+        logDebug("Fields to be hard deleted: {}", () -> documentData.fieldsToBeHardDeleted().stream().map(FieldData::getActualPath).collect(toList()));
+        documentData.fieldsToBeHardDeleted()
+                .forEach(fd -> json.delete(fd.getActualPath()));
+
 
         logDebug(" Final JSON: {} ", json.jsonString());
         return json.jsonString();

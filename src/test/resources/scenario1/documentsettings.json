@@ -3,14 +3,13 @@
   "description": "some description",
   "fieldsGroup": [
     {
-      "description": "Munging all names",
+      "description": "Fields representing all Human Names",
       "sourceFields": [
         "firstName",
         "lastName",
         "fullName"
       ],
-      "targetField": "_fullName",
-      "targetFieldValueType": "ARRAY"
+      "targetField": "_fullName"
     }
   ]
 }

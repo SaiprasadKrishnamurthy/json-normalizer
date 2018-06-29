@@ -1,0 +1,31 @@
+{
+  "id": "contactRecord",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "removing contactHistory",
+      "fieldsToBeDeleted": [
+        "additionalDetails.history.contactHistory",
+        "additionalDetails.history"
+      ]
+    },
+    {
+      "description": "normalising names",
+      "sourceFields": [
+        "name",
+        "age",
+        "gender",
+        "contactDetails.name",
+        "contactDetails.age",
+        "contactDetails.gender"
+      ],
+      "targetField": "_identity"
+    },
+    {
+      "description": "removing greetings",
+      "fieldsToBeDeleted": [
+        "greetings"
+      ]
+    }
+  ]
+}

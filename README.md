@@ -16,12 +16,12 @@ like elasticsearch etc where you typically do not want to make your documents no
 <dependency>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>json-normalizer</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
 </dependency>
 
 // To call from your code.
 DocumentSettings documentNormalizationSettings = // Java representation of your config JSON (examples below).
-String cleansedJSon = Normalizer.normalize(documentNormalizationSettings, inputJson);
+String cleansedJson = Normalizer.normalize(documentNormalizationSettings, inputJson);
 
 ```
 

@@ -7,6 +7,7 @@ import com.github.saiprasadkrishnamurthy.model.TargetFieldValueType;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.github.saiprasadkrishnamurthy.model.DocumentData.ARRAY_ACCESSOR_PATTERN;
 import static java.util.stream.Collectors.joining;
@@ -83,13 +85,32 @@ public final class Normalizer {
 
         logDebug("Fields to be hard deleted: {}", () -> documentData.fieldsToBeHardDeleted().stream().map(FieldData::getActualPath).collect(toList()));
         documentData.fieldsToBeHardDeleted()
-                .forEach(fd -> json.delete(fd.getActualPath()));
-
+                .forEach(fd -> {
+                    if (fd.getActualPath().endsWith("]")) {
+                        // Arrays should be deleted in the format '$['a']['b'][0]
+                        String fields = Stream.of(fd.getCanonicalPath().split("\\."))
+                                .map(f -> "['" + f + "']")
+                                .collect(joining());
+                        String arrayIndex = fd.getActualPath().substring(fd.getActualPath().lastIndexOf('['));
+                        Integer n = Integer.parseInt(arrayIndex.replace("[", "").replace("]", ""));
+                        for (int i = 0; i < n + 1; i++) {
+                            String path = "$" + fields + "[" + i + "]";
+                            try {
+                                json.delete(path);
+                            } catch (PathNotFoundException ex) {
+                                LOG.debug(" Already deleted or path is invalid: {}", path);
+                            }
+                        }
+                    } else {
+                        json.delete(fd.getActualPath());
+                    }
+                });
         Map<String, Object> toBeDeletedJson = JsonFlattener.flattenAsMap(json.jsonString());
         logDebug(" Deleting all the empty objects deep down: {} ", toBeDeletedJson);
         finalCleanup(json, toBeDeletedJson);
 
-        logDebug(" Final JSON: {} ", json.jsonString());
+        logDebug(" Final JSON: {} ", json::jsonString);
+        logDebug(" Final JSON Stats: {} ", () -> String.format("[O]: %s [N]: %s ", originalJson.length(), json.jsonString().length()));
 
         return json.jsonString();
     }
@@ -114,6 +135,8 @@ public final class Normalizer {
                 } else {
                     json.delete(k);
                 }
+            } else if (v instanceof List && ((List) v).isEmpty()) {
+                json.delete(k);
             }
         });
     }

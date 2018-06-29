@@ -1,31 +1,76 @@
-**JSON Normalizer**
+# JSON Normalizer
 
-The purpose of this utility is to cleanse the JSON that has a lot of duplicated fields and values in 
-multiple sections and normalize them into a single field without writing any code.
+The purpose of this utility is to cleanse and normalize the JSON.
+* Works for JSON with many null or empty fields and you want to remove them at any level of depth.  
+* Works for JSON with many field at different levels with duplicate values (but named differently).
+In this case, you want to dedupe the values and inject them into a different field dynamically created.
+* Works by means of a declarative approach without writing any code.
+* Works for any json with any depth.   
 
-The main motivation behind this utility is to make the JSON nice and compact to be indexed efficiently into
-Elasticsearch without having to make your index consume too much of space (with duplicated fields/values).
+The main motivation behind this utility is to make the JSON nice and compact to be made more usable for NOSQL stores/search engines
+like elasticsearch etc where you typically do not want to make your documents noisy.  
 
-**To use this**
+## Getting Started
+
 ```
 <dependency>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>json-normalizer</artifactId>
-    <version>1.1</version>
+    <version>2.0</version>
 </dependency>
 
-```
-Call the below method:
+// To call from your code.
+DocumentSettings documentNormalizationSettings = // Java representation of your config JSON (examples below).
+String cleansedJSon = Normalizer.normalize(documentNormalizationSettings, inputJson);
 
 ```
-DocumentNormalizer.normalize(final DocumentNormalizationSettings documentNormalizationSettings, final String originalJson)
 
+
+## Examples
+
+### Example 1
+#### Input:
 ```
-The best way to explain this is via a few examples:
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "fullName": "John Smith Jim",
+  "age": 31,
+  "city": "New York"
+}
+```
 
-***Example 1***
+#### Settings:
+```
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "Fields representing all Human Names",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName"
+      ],
+      "targetField": "_fullName"
+    }
+  ]
+}
+```
 
-****Input JSON****
+#### Output JSON:
+```
+{
+  "fullName": "Jim",
+  "age": 31,
+  "city": "New York",
+  "_fullName": "John Smith"
+} 
+```
+
+### Example 2
+#### Input:
 ```
 {
   "firstName": "John",
@@ -36,86 +81,40 @@ The best way to explain this is via a few examples:
 }
 ```
 
-****Settings JSON****
+#### Settings:
 ```
 {
-  "documentType": "events",
-  "fieldSettings": [
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
     {
-      "primaryField": "fullName",
-      "secondaryFields": [
-        "firstName",
-        "lastName"
-      ]
-    }
-  ]
-}
-```
-
-As you see above, my intent is to combine the firstName and lastName fields, dedupe them and munge them into the fullName
-field.
-
-****Output JSON****
-```
-{
-  "fullName": "John Smith",
-  "age": 31,
-  "city": "New York"
-}
-```
-
-***Example 2***
-
-****Input JSON****
-```
-{
-  "identity": null,
-  "firstName": "John",
-  "lastName": "John",
-  "fullName": "John John",
-  "age": 31,
-  "city": "New York"
-}
-```
-
-****Settings JSON****
-```
-{
-  "documentType": "events",
-  "fieldSettings": [
-    {
-      "primaryField": "identity",
-      "secondaryFields": [
+      "description": "Fields representing all Human identities",
+      "sourceFields": [
         "firstName",
         "lastName",
+        "fullName",
         "age",
         "city"
       ],
-      "unwantedFields": [
-        "fullName"
-      ],
-      "valuesDelimiter": ","
+      "targetField": "identity"
     }
   ]
 }
 ```
 
-As you see above, my intent is to combine the firstName, lastName, age, city fields, dedupe them and munge them into the identity
-field. I also declared that I do not want fullName field as they are already taken care of.
-
-****Output JSON****
+#### Output JSON:
 ```
 {
-  "identity": "31,John,New York"
+  "age": "31",
+  "city": "New York",
+  "identity": "John Smith"
 }
 ```
 
-***Example 3 (using arrays)***
-
-****Input JSON****
+### Example 3 (with arrays)
+#### Input:
 ```
 {
-  "identity": null,
   "firstName": "John",
   "lastName": "Smith",
   "fullName": "John Smith",
@@ -125,42 +124,121 @@ field. I also declared that I do not want fullName field as they are already tak
 }
 ```
 
-****Settings JSON****
+#### Settings:
 ```
 {
-  "documentType": "events",
-  "fieldSettings": [
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
     {
-      "primaryField": "identity",
-      "secondaryFields": [
+      "description": "Fields representing all Human identities",
+      "sourceFields": [
         "firstName",
         "lastName",
+        "fullName",
         "age",
-        "city",
-        "phoneNumbers"
+        "phoneNumbers",
+        "city"
       ],
-      "unwantedFields": [
-        "fullName"
-      ],
-      "valuesDelimiter": ","
+      "targetField": "identity"
     }
   ]
 }
 ```
 
-As you see above, my intent is to combine the firstName, lastName, age, city, phone fields, dedupe them and munge them into the identity
-field. The array values are automatically handled.
-
-****Output JSON****
+#### Output JSON:
 ```
 {
-  "identity": "111,234,31,John,New York,Smith"
+  "age": "31",
+  "city": "New York",
+  "phoneNumbers": [
+    "234"
+  ],
+  "identity": "John Smith 111"
 }
 ```
 
-***Example 4 (using multi-level nested document)***
+### Example 4 (automatic removal of nulls)
+#### Input:
+```
+{
+  "names": null,
+  "coordinates": null,
+  "nameDetails": {
+    "firstName": null,
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
+  "age": null,
+  "city": "New York",
+  "contacts": [
+    {
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ],
+      "landline": null
+    }
+  ],
+  "addresses": [
+    {
+      "id": 1,
+      "line1": "No 6, Beach Road",
+      "line2": "SantaClara Ave",
+      "city": null,
+      "state": null,
+      "country": null
+    }
+  ]
+}
+```
 
-****Input JSON****
+#### Settings:
+```
+{
+  "id": "events",
+  "description": "clean up empty values"
+}
+```
+
+#### Output JSON:
+```
+{
+  "nameDetails": {
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
+  "city": "New York",
+  "contacts": [
+    {
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
+  ],
+  "addresses": [
+    {
+      "id": 1,
+      "line1": "No 6, Beach Road",
+      "line2": "SantaClara Ave"
+    }
+  ]
+}
+```
+
+### Example 5 (json with nested structures)
+#### Input:
 ```
 {
   "names": null,
@@ -176,149 +254,77 @@ field. The array values are automatically handled.
   ],
   "city": "New York",
   "contacts": {
-    "homePhone": [
-      "111",
-      "000"
-    ],
-    "officePhone": [
-      "111",
-      "100"
-    ]
+    "telephone": {
+      "homePhone": [
+        "111",
+        "000"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
   }
 }
 ```
 
-****Settings JSON****
+#### Settings:
 ```
 {
-  "documentType": "events",
-  "fieldSettings": [
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
     {
-      "primaryField": "names",
-      "secondaryFields": [
+      "description": "names",
+      "sourceFields": [
         "firstName",
-        "lastName"
-      ],
-      "unwantedFields": [
+        "lastName",
         "fullName"
       ],
-      "valuesDelimiter": ","
+      "targetField": "_fullName"
     },
     {
-      "primaryField": "phoneNumbers",
-      "secondaryFields": [
-        "contacts.homePhone",
-        "contacts.officePhone"
+      "description": "phones",
+      "sourceFields": [
+        "phoneNumbers",
+        "contacts.telephone.homePhone",
+        "contacts.telephone.officePhone"
       ],
-      "valuesDelimiter": ",",
-      "unwantedFields": [
-        "contacts"
+      "targetField": "_phoneNumber",
+      "fieldsToBeDeleted": [
+        "names",
+        "coordinates",
+        "age",
+        "city"
       ]
     }
   ]
 }
 ```
 
-****Output JSON****
+#### Output JSON:
 ```
 {
-  "names": "John,Smith",
-  "coordinates": null,
-  "age": 31,
-  "phoneNumbers": [
-    "000",
-    "100",
-    "111",
-    "234"
-  ],
-  "city": "New York"
-}
-```
-
-***Example 5 (filtering a specific value using regex)***
-
-****Input JSON****
-```
-{
-  "names": null,
-  "coordinates": null,
-  "firstName": "John",
-  "lastName": "Smith",
-  "fullName": "John Smith",
-  "age": 31,
-  "phoneNumbers": [
-    "111",
-    "234",
-    "111",
-    "abc"
-  ],
-  "city": "New York",
   "contacts": {
-    "homePhone": [
-      "111",
-      "000",
-      "234a"
-    ],
-    "officePhone": [
-      "111",
-      "100"
-    ]
-  }
-}
-```
-
-****Settings JSON****
-```
-{
-  "documentType": "events",
-  "fieldSettings": [
-    {
-      "primaryField": "names",
-      "secondaryFields": [
-        "firstName",
-        "lastName"
+    "telephone": {
+      "homePhone": [
+        "000"
       ],
-      "unwantedFields": [
-        "fullName"
-      ],
-      "valuesDelimiter": ","
-    },
-    {
-      "primaryField": "phoneNumbers",
-      "secondaryFields": [
-        "contacts.homePhone",
-        "contacts.officePhone"
-      ],
-      "rejectValuesMatchingRegex": "\\D",
-      "valuesDelimiter": ",",
-      "unwantedFields": [
-        "contacts"
+      "officePhone": [
+        "100"
       ]
     }
-  ]
-}
-```
- I'm rejecting any non-numeric content in the phoneNumbers using the regex.
- 
-****Output JSON****
-```
-{
-  "names": "John,Smith",
-  "coordinates": null,
-  "age": 31,
+  },
   "phoneNumbers": [
-    "000",
-    "100",
-    "111",
     "234"
   ],
-  "city": "New York"
+  "_fullName": "John Smith",
+  "_phoneNumber": "111"
 }
 ```
 
-***Example 6 (A more complex example)***
-
-****Input JSON****
+### Example 6 (another example of multi-level json)
+#### Input:
 ```
 {
   "names": null,
@@ -370,57 +376,47 @@ field. The array values are automatically handled.
 }
 ```
 
-****Settings JSON****
+#### Settings:
 ```
 {
-  "documentType": "events",
-  "fieldSettings": [
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
     {
-      "primaryField": "phoneNumber",
-      "secondaryFields": [
+      "description": "names",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName"
+      ],
+      "targetField": "_fullName"
+    },
+    {
+      "description": "phones",
+      "sourceFields": [
+        "phoneNumbers",
         "orders.phone",
         "travelTickets.contactPhone"
       ],
-      "unwantedFields": [
-        "fullName"
-      ],
-      "valuesDelimiter": ","
-    },
-    {
-      "primaryField": "phoneNumber",
-      "secondaryFields": [
-        "contacts.homePhone",
-        "contacts.officePhone"
-      ],
-      "rejectValuesMatchingRegex": "\\D",
-      "valuesDelimiter": ",",
-      "unwantedFields": [
-        "contacts"
+      "targetField": "_phoneNumber",
+      "fieldsToBeDeleted": [
+        "orders.orderId"
       ]
     }
   ]
 }
 ```
-We have phone numbers at various depths in the input JSON. The settings would simply collect all the phone numbers
-from various fields, dedupe them into a single "phoneNumber" field. The output JSON would look like below. 
- 
-****Output JSON****
+
+#### Output JSON:
 ```
 {
-  "names": null,
-  "coordinates": null,
-  "firstName": "John",
-  "lastName": "Smith",
   "age": 31,
   "phoneNumber": [
-    "111",
-    "112",
     "999"
   ],
   "city": "New York",
   "orders": [
     {
-      "orderId": "1",
       "total": 100,
       "items": [
         {
@@ -434,7 +430,6 @@ from various fields, dedupe them into a single "phoneNumber" field. The output J
       ]
     },
     {
-      "orderId": "2",
       "total": 100,
       "items": [
         {
@@ -445,155 +440,145 @@ from various fields, dedupe them into a single "phoneNumber" field. The output J
           "lineItemId": "2",
           "quantity": 1
         }
-      ]
+      ],
+      "phone": "112"
     }
   ],
   "travelTickets": [
     {
       "ticketId": "1"
     }
-  ]
+  ],
+  "_fullName": "John Smith",
+  "_phoneNumber": "111"
 }
 ```
 
-***Example 7 (Dynamic fields or Virtual Fields)***
-
-****Input JSON****
+### Example 7 (removal only)
+#### Input:
 ```
 {
   "names": null,
   "coordinates": null,
-  "firstName": "John",
-  "lastName": "Smith",
-  "fullName": "John Smith",
+  "nameDetails": {
+    "firstName": "John",
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
   "age": 31,
   "city": "New York",
-  "contacts": {
-    "homePhone": [
-      "111",
-      "000",
-      "234a"
-    ],
-    "officePhone": [
-      "111",
-      "100"
-    ]
-  }
+  "contacts": [
+    {
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
+  ]
 }
 ```
 
-****Settings JSON****
+#### Settings:
 ```
 {
-  "documentType": "events",
-  "fieldSettings": [
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
     {
-      "primaryField": "names",
-      "secondaryFields": [
-        "firstName",
-        "lastName"
-      ],
-      "unwantedFields": [
-        "fullName"
-      ],
-      "valuesDelimiter": ","
-    },
-    {
-      "primaryField": "_phoneNumbers",
-      "dynamicField": true,
-      "secondaryFields": [
-        "contacts.homePhone",
-        "contacts.officePhone"
-      ],
-      "rejectValuesMatchingRegex": "\\D",
-      "valuesDelimiter": " ",
-      "unwantedFields": [
+      "description": "removing contacts",
+      "fieldsToBeDeleted": [
         "contacts"
       ]
     }
   ]
 }
 ```
-The "_phoneNumbers" field is a dynamic field and not present in the original input document. It's dynamically added.
 
-****Output JSON****
+#### Output JSON:
 ```
 {
-  "names": "John,Smith",
-  "coordinates": null,
-  "age": 31,
-  "city": "New York",
-  "_phoneNumbers": "000 100 111"
-}
-```
-
-***Example 8 (Removal only)***
-
-****Input JSON****
-```
-{
-  "names": null,
-  "coordinates": null,
-  "firstName": "John",
-  "lastName": "Smith",
-  "fullName": "John Smith",
-  "age": 31,
-  "city": "New York",
-  "contacts": {
-    "homePhone": [
-      "111",
-      "000",
-      "234a"
-    ],
-    "officePhone": [
-      "111",
-      "100"
-    ]
-  }
-}
-```
-
-****Settings JSON****
-```
-{
-  "documentType": "events",
-  "fieldSettings": [
-    {
-      "unwantedFields": [
-        "fullName"
-      ]
-    },
-    {
-      "unwantedFields": [
-        "contacts.homePhone",
-        "contacts.officePhone"
-      ]
-    },
-    {
-      "unwantedFields": [
-        "names",
-        "coordinates"
-      ]
-    },
-    {
-      "unwantedFields": [
-        "contacts"
-      ]
-    }
-  ]
-}
-}
-```
-The "_fullName", "names", "coordinates", "contacts" fields are simply removed.
-
-****Output JSON****
-```
-{
-  "firstName": "John",
-  "lastName": "Smith",
+  "nameDetails": {
+    "firstName": "John",
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
   "age": 31,
   "city": "New York"
 }
 ```
 
+### Example 8 (multilevel json with removal)
+#### Input:
+```
+{
+  "names": null,
+  "coordinates": null,
+  "nameDetails": {
+    "firstName": "John",
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
+  "age": 31,
+  "city": "New York",
+  "contacts": [
+    {
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
+  ]
+}
+```
 
+#### Settings:
+```
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "removing names",
+      "fieldsToBeDeleted": [
+        "nameDetails.firstName",
+        "nameDetails.lastName"
+      ]
+    },
+    {
+      "description": "removing contacts",
+      "fieldsToBeDeleted": [
+        "contacts"
+      ]
+    }
+  ]
+}
+```
+
+#### Output JSON:
+```
+{
+  "nameDetails": {
+    "fullName": "John Smith"
+  },
+  "age": 31,
+  "city": "New York"
+}
+```
+## Authors
+
+* **Sai** - *Initial work* - [Github](https://github.com/SaiprasadKrishnamurthy)
+
+
+## License
+
+This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE.md) file for details

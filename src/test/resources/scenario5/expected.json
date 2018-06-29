@@ -1,12 +1,17 @@
 {
-  "names": "John,Smith",
-  "coordinates": null,
-  "age": 31,
+  "contacts": {
+    "telephone": {
+      "homePhone": [
+        "000"
+      ],
+      "officePhone": [
+        "100"
+      ]
+    }
+  },
   "phoneNumbers": [
-    "111",
-    "234",
-    "000",
-    "100"
+    "234"
   ],
-  "city": "New York"
+  "_fullName": "John Smith",
+  "_phoneNumber": "111"
 }

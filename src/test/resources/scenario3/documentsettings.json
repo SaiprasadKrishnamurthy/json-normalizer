@@ -1,0 +1,18 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "Fields representing all Human identities",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName",
+        "age",
+        "phoneNumbers",
+        "city"
+      ],
+      "targetField": "identity"
+    }
+  ]
+}

@@ -1,12 +1,43 @@
 {
-  "names": "John,Smith",
-  "coordinates": null,
   "age": 31,
-  "phoneNumbers": [
-    "111",
-    "234",
-    "000",
-    "100"
+  "phoneNumber": [
+    "999"
   ],
-  "city": "New York"
+  "city": "New York",
+  "orders": [
+    {
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "total": 100,
+      "items": [
+        {
+          "lineItemId": "1",
+          "quantity": 1
+        },
+        {
+          "lineItemId": "2",
+          "quantity": 1
+        }
+      ],
+      "phone": "112"
+    }
+  ],
+  "travelTickets": [
+    {
+      "ticketId": "1"
+    }
+  ],
+  "_fullName": "John Smith",
+  "_phoneNumber": "111"
 }

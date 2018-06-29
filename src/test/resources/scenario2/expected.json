@@ -1,11 +1,5 @@
 {
-  "identity": "31,John,New York"
-}
-
-{
-  "identity": "31,John,New York",
-  "firstName": "John",
-  "lastName": "John",
-  "age": 31,
-  "city": "New York"
+  "age": "31",
+  "city": "New York",
+  "identity": "John Smith"
 }

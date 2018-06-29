@@ -1,0 +1,30 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "names",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName"
+      ],
+      "targetField": "_fullName"
+    },
+    {
+      "description": "phones",
+      "sourceFields": [
+        "phoneNumbers",
+        "contacts.telephone.homePhone",
+        "contacts.telephone.officePhone"
+      ],
+      "targetField": "_phoneNumber",
+      "fieldsToBeDeleted": [
+        "names",
+        "coordinates",
+        "age",
+        "city"
+      ]
+    }
+  ]
+}

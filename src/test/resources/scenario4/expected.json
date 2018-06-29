@@ -1,5 +1,27 @@
 {
-  "names": "John,Smith",
-  "coordinates": "111,234,New York",
-  "age": 31
+  "nameDetails": {
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
+  "city": "New York",
+  "contacts": [
+    {
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
+  ],
+  "addresses": [
+    {
+      "id": 1,
+      "line1": "No 6, Beach Road",
+      "line2": "SantaClara Ave"
+    }
+  ]
 }

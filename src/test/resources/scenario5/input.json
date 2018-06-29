@@ -12,13 +12,15 @@
   ],
   "city": "New York",
   "contacts": {
-    "homePhone": [
-      "111",
-      "000"
-    ],
-    "officePhone": [
-      "111",
-      "100"
-    ]
+    "telephone": {
+      "homePhone": [
+        "111",
+        "000"
+      ],
+      "officePhone": [
+        "111",
+        "100"
+      ]
+    }
   }
 }

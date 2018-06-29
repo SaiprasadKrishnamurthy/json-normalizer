@@ -1,0 +1,12 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "removing contacts",
+      "fieldsToBeDeleted": [
+        "contacts"
+      ]
+    }
+  ]
+}

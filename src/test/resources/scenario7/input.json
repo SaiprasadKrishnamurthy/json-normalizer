@@ -1,48 +1,24 @@
 {
   "names": null,
   "coordinates": null,
-  "firstName": "John",
-  "lastName": "Smith",
-  "fullName": "John Smith",
+  "nameDetails": {
+    "firstName": "John",
+    "lastName": "Smith",
+    "fullName": "John Smith"
+  },
   "age": 31,
-  "phoneNumber": ["999"],
   "city": "New York",
-  "orders": [
+  "contacts": [
     {
-      "orderId": "1",
-      "total": 100,
-      "items": [
-        {
-          "lineItemId": "1",
-          "quantity": 1
-        },
-        {
-          "lineItemId": "2",
-          "quantity": 1
-        }
+      "homePhone": [
+        "111",
+        "000",
+        "234a"
       ],
-      "phone": "111"
-    },
-    {
-      "orderId": "2",
-      "total": 100,
-      "items": [
-        {
-          "lineItemId": "1",
-          "quantity": 1
-        },
-        {
-          "lineItemId": "2",
-          "quantity": 1
-        }
-      ],
-      "phone": "112"
-    }
-  ],
-  "travelTickets": [
-    {
-      "ticketId": "1",
-      "contactPhone": "111"
+      "officePhone": [
+        "111",
+        "100"
+      ]
     }
   ]
 }

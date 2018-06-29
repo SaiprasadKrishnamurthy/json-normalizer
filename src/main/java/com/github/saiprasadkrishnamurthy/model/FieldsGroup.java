@@ -10,8 +10,8 @@ public class FieldsGroup {
     private String description;
     private List<String> sourceFields = new ArrayList<>();
     private String targetField;
-    private TargetFieldValueType targetFieldValueType = TargetFieldValueType.ARRAY;
+    private TargetFieldValueType targetFieldValueType = TargetFieldValueType.SPACE_DELIMITED;
     private String ignoreValueMatchingRegex;
+    private ValueTokenizerType valueTokenizerType = ValueTokenizerType.STANDARD;
     private List<String> fieldsToBeDeleted = new ArrayList<>();
-
 }

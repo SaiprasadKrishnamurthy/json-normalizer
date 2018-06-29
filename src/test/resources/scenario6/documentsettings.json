@@ -1,0 +1,27 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "names",
+      "sourceFields": [
+        "firstName",
+        "lastName",
+        "fullName"
+      ],
+      "targetField": "_fullName"
+    },
+    {
+      "description": "phones",
+      "sourceFields": [
+        "phoneNumbers",
+        "orders.phone",
+        "travelTickets.contactPhone"
+      ],
+      "targetField": "_phoneNumber",
+      "fieldsToBeDeleted": [
+        "orders.orderId"
+      ]
+    }
+  ]
+}

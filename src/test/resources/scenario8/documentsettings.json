@@ -1,0 +1,19 @@
+{
+  "id": "events",
+  "description": "some description",
+  "fieldsGroup": [
+    {
+      "description": "removing names",
+      "fieldsToBeDeleted": [
+        "nameDetails.firstName",
+        "nameDetails.lastName"
+      ]
+    },
+    {
+      "description": "removing contacts",
+      "fieldsToBeDeleted": [
+        "contacts"
+      ]
+    }
+  ]
+}

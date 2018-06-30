@@ -11,6 +11,7 @@ import com.jayway.jsonpath.PathNotFoundException;
 import com.mitchtalmadge.asciidata.graph.ASCIIGraph;
 import org.apache.commons.collections4.map.LRUMap;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,6 +171,8 @@ public final class Normalizer {
                     json.delete(k);
                 }
             } else if (v instanceof List && ((List) v).isEmpty()) {
+                json.delete(k);
+            } else if (v instanceof String && StringUtils.isBlank(v.toString())) {
                 json.delete(k);
             }
         });

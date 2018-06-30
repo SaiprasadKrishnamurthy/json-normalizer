@@ -35,7 +35,6 @@ public final class Normalizer {
     private static final String STATS_RECORD_SIZE_SETTING = "json.normalizer.record.stats.size";
     private static final LRUMap<String, Double> STATS_MAP = new LRUMap<>(System.getProperty(STATS_RECORD_SIZE_SETTING) == null ? 300 : Integer.parseInt(System.getProperty(STATS_RECORD_SIZE_SETTING)));
 
-
     private Normalizer() {
     }
 

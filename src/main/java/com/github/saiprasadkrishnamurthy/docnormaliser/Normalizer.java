@@ -8,12 +8,16 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
+import com.mitchtalmadge.asciidata.graph.ASCIIGraph;
+import org.apache.commons.collections4.map.LRUMap;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -27,6 +31,10 @@ import static java.util.stream.Collectors.toList;
 public final class Normalizer {
 
     private static final Logger LOG = LoggerFactory.getLogger(Normalizer.class);
+    private static final String STATS_RECORD_SETTING = "json.normalizer.record.stats";
+    private static final String STATS_RECORD_SIZE_SETTING = "json.normalizer.record.stats.size";
+    private static final LRUMap<String, Double> STATS_MAP = new LRUMap<>(System.getProperty(STATS_RECORD_SIZE_SETTING) == null ? 300 : Integer.parseInt(System.getProperty(STATS_RECORD_SIZE_SETTING)));
+
 
     private Normalizer() {
     }
@@ -110,9 +118,36 @@ public final class Normalizer {
         finalCleanup(json, toBeDeletedJson);
 
         logDebug(" Final JSON: {} ", json::jsonString);
-        logDebug(" Final JSON Stats: {} ", () -> String.format("[O]: %s [N]: %s ", originalJson.length(), json.jsonString().length()));
+        if (Boolean.parseBoolean(System.getProperty(STATS_RECORD_SETTING)) || LOG.isDebugEnabled()) {
+            logDebug(" Final JSON Stats: {} ", () -> {
+                double originalJsonLength = originalJson.length();
+                double newJsonLength = json.jsonString().length();
+                double decrease = originalJsonLength - newJsonLength;
+                double percent = (decrease / originalJsonLength) * 100D;
+                STATS_MAP.putIfAbsent(UUID.randomUUID().toString(), percent);
+                return String.format("[ORIGINAL]: %s [NORMALISED]: %s [%%DECREASE]: %s%%", originalJsonLength, newJsonLength, percent);
+            });
+        }
 
         return json.jsonString();
+    }
+
+    public static String plotNormalisedLengthReductionInPercentage() {
+        if (Boolean.parseBoolean(System.getProperty(STATS_RECORD_SETTING)) && !STATS_MAP.isEmpty()) {
+            String plot = ASCIIGraph
+                    .fromSeries(ArrayUtils.toPrimitive(STATS_MAP.values().toArray(new Double[0])))
+                    .withNumRows(10)
+                    .plot();
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("\n\n\n");
+                LOG.debug(plot);
+                LOG.debug("\n\n\n");
+            }
+            return plot;
+        } else {
+            return "";
+        }
     }
 
     private static void finalCleanup(final DocumentContext json, final Map<String, Object> toBeDeletedJson) {

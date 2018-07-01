@@ -16,7 +16,7 @@ like elasticsearch etc where you typically do not want to make your documents no
 <dependency>
     <groupId>com.github.saiprasadkrishnamurthy</groupId>
     <artifactId>json-normalizer</artifactId>
-    <version>2.1</version>
+    <version>2.3</version>
 </dependency>
 
 // To call from your code.

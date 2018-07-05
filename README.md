@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/SaiprasadKrishnamurthy/json-normalizer.svg?branch=master)](https://travis-ci.com/SaiprasadKrishnamurthy/json-normalizer)
 # JSON Normalizer
 
 The purpose of this utility is to cleanse and normalize the JSON.
